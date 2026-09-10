@@ -1,0 +1,293 @@
+<!doctype html><html lang="nl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aetherium Academy - De Nacht van de Holle Ster</title>
+<link rel="stylesheet" href="assets/style.css"></head><body>
+<audio id="ambienceAudio" src="assets/aetherium_ambience.wav" loop preload="auto"></audio>
+<audio id="transitionAudio" src="assets/transition_chime.wav" preload="auto"></audio>
+<div class="wrap">
+
+<div class="hud">
+  <div class="brand">✦ Aetherium</div>
+  <div class="progress"><div id="progressFill"></div></div>
+  <div class="clue-pill">🔎 <span id="clueCount">0</span></div>
+  <div class="hud-actions">
+    <button class="iconbtn" id="soundBtn" onclick="toggleSound()" title="Geluid">🔊</button>
+    <button class="iconbtn" onclick="toggleClueDrawer()" title="Dossier">📓</button>
+    <button class="iconbtn" onclick="resetGame()" title="Herstart">⚙</button>
+  </div>
+</div>
+
+<section id="start" class="scene">
+  <div class="hero" style="background-image:url('assets/academy.jpg')">
+    <div class="hero-copy">
+      <span class="tag">AETHERIUM ACADEMY</span><span class="tag">3 SPELERS</span><span class="tag">± 2 UUR</span>
+      <h1>De Nacht van de Holle Ster</h1>
+      <p>Een interactieve fantasy-whodunnit voor Florine, Margot en Selena. Jullie bepalen zelf wat jullie zeggen, onderzoeken en delen.</p>
+      <div class="sound-options">
+        <label class="checkline"><input id="voiceToggle" type="checkbox" checked> Gesproken vertelling</label>
+        <label class="checkline"><input id="ambienceToggle" type="checkbox" checked> Sfeergeluid</label>
+      </div>
+      <button id="startBtn" class="primary" disabled onclick="startGame()">Betreed Aetherium ✦</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Jullie in Aetherium</h2>
+    <p class="muted">Alternate-universe versies van jullie drie. De site schrijft nooit gesprekken voor namens jullie.</p>
+    <div class="grid player-grid">
+      <div class="card player-card"><img src="assets/florine_portrait.jpg"><strong>Florine — Echo Sight</strong><p>Zorgzaam, koppig en creatief. Felix, een zilveren konijnencharme, verankert haar visioenen.</p><div><span class="tag">Divination</span><span class="tag">Blauw</span><span class="tag">Okido</span></div></div>
+      <div class="card player-card"><img src="assets/margot_portrait.jpg"><strong>Margot — Mythic Lore</strong><p>Nerdy, betrokken en zorgzaam. Maan-, pijl- en wolfsymboliek duikt overal in haar spullen op.</p><div><span class="tag">Lore</span><span class="tag">Artemis</span><span class="tag">Fair</span></div></div>
+      <div class="card player-card"><img src="assets/selena_portrait.jpg"><strong>Selena — Verdant Sense</strong><p>Creatief, koppig en eerlijk. Haar jackalope-familiar reageert op plantenmagie en vreemde geuren.</p><div><span class="tag">Herbology</span><span class="tag">Jackalope</span><span class="tag">Hoe dan ook...</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="dialogue" class="scene hidden">
+  <div class="dialogue-shell">
+    <div class="dialogue-stage" id="dialogueStage">
+      <div class="vn-card">
+        <div class="vn-portrait-wrap"><div class="vn-portrait placeholder">✦</div><div class="vn-speaker">Aetherium</div></div>
+        <div class="vn-textbox"><div class="vn-text">...</div></div>
+      </div>
+    </div>
+    <div class="timerline" id="dialogueTimer"></div>
+    <div class="dialogue-controls">
+      <button class="secondary" id="pauseBtn" onclick="pauseDialogue()">⏸ Pauze</button>
+      <button class="secondary" onclick="skipLine()">⏩ Volgende</button>
+    </div>
+  </div>
+</section>
+
+<section id="deathBeat" class="scene hidden">
+  <div class="panel center"><h2>23:17 — de noordtoren</h2><p>De lichten zijn terug. De hele Grote Hal is stil. Dan klinkt boven jullie metaal tegen steen.</p>
+  <button class="primary" onclick="goDeath()">Ga naar het observatorium</button></div>
+</section>
+
+<section id="observatory" class="scene hidden">
+  <div class="panel">
+    <h2>Het observatorium</h2>
+    <img class="scene-image" src="assets/library.jpg" alt="Donkere onderzoeksruimte">
+    <p>Alles ligt open voor jullie. Lees de vier waarnemingen en beslis samen welke <strong>drie</strong> jullie officieel als belangrijk bewijs markeren.</p>
+    <div class="evidence-grid">
+      <button class="evidence-choice" data-evidence="cup" onclick="toggleEvidence('cup',this)"><h3>🥂 De beker</h3><p>Onaangeroerd. Geen verkleuring. Geen bezinksel. Hij staat net buiten bereik van Veynes hand.</p></button>
+      <button class="evidence-choice" data-evidence="floor" onclick="toggleEvidence('floor',this)"><h3>✦ Vloer & lectern</h3><p>Onder het lectern zit een stervormige verkleuring die niet past bij normale slijtage.</p></button>
+      <button class="evidence-choice" data-evidence="lens" onclick="toggleEvidence('lens',this)"><h3>🔭 De lens</h3><p>De uitlijnmarkeringen staan niet gelijk. Iemand heeft het mechanisme recent aangeraakt.</p></button>
+      <button class="evidence-choice" data-evidence="note" onclick="toggleEvidence('note',this)"><h3>📜 Veynes notitie</h3><p>Een blad is gescheurd. Jullie drie namen zijn leesbaar. De rest ontbreekt.</p></button>
+    </div>
+    <div class="selectionbar"><span><strong id="evidenceCount">0/3</strong> gemarkeerd</span><button id="confirmEvidence" class="primary" disabled onclick="confirmEvidence()">Leg jullie selectie vast</button></div>
+  </div>
+</section>
+
+<section id="corridorEvent" class="scene hidden">
+  <div class="panel">
+    <h2>Er gebeurt iets voordat jullie vertrekken</h2>
+    <p>De observatoriumdeur slaat vanzelf dicht. Een rode ward flitst over de stenen vloer en één van de wandpanelen springt open.</p>
+    <div class="grid">
+      <button class="choice" onclick="corridorChoice('ward')"><strong>Bestudeer de ward</strong><br><span class="muted">Wie heeft toegang nodig om dit systeem te beïnvloeden?</span></button>
+      <button class="choice" onclick="corridorChoice('panel')"><strong>Bekijk het open wandpaneel</strong><br><span class="muted">Er zit iets mechanisch achter.</span></button>
+      <button class="choice" onclick="corridorChoice('people')"><strong>Kijk wie reageert</strong><br><span class="muted">Soms is een reactie interessanter dan een object.</span></button>
+    </div>
+    <div id="corridorResult" class="resultbox"></div>
+    <button id="corridorNext" class="primary hidden" onclick="show('explore1')">Verlaat het observatorium</button>
+  </div>
+</section>
+
+<section id="explore1" class="scene hidden">
+  <div class="panel">
+    <h2>Eerste onderzoek</h2>
+    <p>Kies <strong>twee locaties</strong>. Een locatie kost tijd: jullie bekijken er bewijs, maken een inhoudelijke keuze en krijgen mogelijk een gesprek.</p>
+    <div class="location-grid">
+      <div class="location-card" data-loc="archive" onclick="openLocation('archive')"><img src="assets/library.jpg"><div class="loc-copy"><h3>📚 Verboden Archief</h3><p>Onderhoudsregisters, ontbrekende bladzijden en verboden toegang.</p></div></div>
+      <div class="location-card" data-loc="greenhouse" onclick="openLocation('greenhouse')"><img src="assets/greenhouse.jpg"><div class="loc-copy"><h3>🌿 Maanserre</h3><p>Geuren, harsen en natuurlijke sporen.</p></div></div>
+      <div class="location-card" data-loc="alchemy" onclick="openLocation('alchemy')"><img src="assets/alchemy.jpg"><div class="loc-copy"><h3>⚗️ Alchemiepracticum</h3><p>Materiaaluitgifte, instrumenten en een vreemd register.</p></div></div>
+      <div class="location-card" data-loc="hall" onclick="openLocation('hall')"><img src="assets/hall.jpg"><div class="loc-copy"><h3>🕯️ Grote Hal</h3><p>Getuigen, halve waarheden en sociale spanning.</p></div></div>
+    </div>
+    <p class="muted" id="locationProgress">0/2 locaties afgerond.</p>
+  </div>
+</section>
+
+<section id="locationScene" class="scene hidden">
+  <div class="panel">
+    <div class="investigation-layout">
+      <img id="locationImage" class="investigation-image" src="assets/library.jpg">
+      <div class="casefile">
+        <span class="tag" id="locationTag">LOCATIE</span>
+        <h2 id="locationTitle">Onderzoek</h2>
+        <div id="locationFragments"></div>
+        <h3>Wat willen jullie hieruit meenemen?</h3>
+        <div class="investigation-options" id="locationOptions"></div>
+        <div id="locationResult" class="resultbox"></div>
+        <button id="locationDone" class="primary hidden" onclick="finishLocation()">Terug naar de academiekaart</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="phone1" class="scene hidden"><div class="panel">
+  <h2>Persoonlijke echo</h2><p>Nu krijgt ieder van jullie iets anders. Scan alleen je eigen code. Wat je leest, blijft van jou tot jij beslist het te delen.</p>
+  <div class="phone-grid">
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/florine_portrait.jpg" alt="Florine">
+      <h3>Florine</h3>
+      <img class="qr" src="assets/qr_1_florine.png" alt="QR Florine">
+      <a href="players/florine.html?phase=1" target="_blank">Open zonder QR</a>
+    </div>
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/margot_portrait.jpg" alt="Margot">
+      <h3>Margot</h3>
+      <img class="qr" src="assets/qr_1_margot.png" alt="QR Margot">
+      <a href="players/margot.html?phase=1" target="_blank">Open zonder QR</a>
+    </div>
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/selena_portrait.jpg" alt="Selena">
+      <h3>Selena</h3>
+      <img class="qr" src="assets/qr_1_selena.png" alt="QR Selena">
+      <a href="players/selena.html?phase=1" target="_blank">Open zonder QR</a>
+    </div></div>
+  <hr><p>Vul daarna alleen de code in die op je telefoon verschijnt.</p>
+  <div class="code-grid"><input id="1-f" placeholder="Florine code"><input id="1-m" placeholder="Margot code"><input id="1-s" placeholder="Selena code"></div>
+  <p id="1-error" class="error"></p><button class="primary" onclick="submitPhone(1)">Iedereen is klaar</button>
+</div></section>
+
+<section id="puzzle1" class="scene hidden"><div class="panel">
+  <h2>Puzzel 1 — De onbetrouwbare tijdlijn</h2><p><span class="printcue">OPEN PRINTBLAD A</span></p>
+  <p>Corrigeer de klokken, tel looptijden op en bepaal welk toegangsvenster werkelijk bestaat.</p>
+  <div class="puzzlebox">
+    <label>Afwijking van de foutieve klok</label><select id="p1offset"><option value="">Kies...</option><option value="3">3 min</option><option value="5">5 min</option><option value="7">7 min</option><option value="9">9 min</option></select>
+    <label>Werkelijk bruikbaar venster</label><select id="p1window"><option value="">Kies...</option><option value="2304-2308">23:04–23:08</option><option value="2308-2312">23:08–23:12</option><option value="2311-2315">23:11–23:15</option><option value="2313-2317">23:13–23:17</option></select>
+    <label>Wie kan zonder extra ward-check passeren?</label><select id="p1route"><option value="">Kies...</option><option value="student">Elke student</option><option value="faculty">Alleen docenten</option><option value="prefect">Iemand met verhoogde academietoegang</option><option value="none">Niemand</option></select>
+    <button class="primary" onclick="checkPuzzle1()">Controleer reconstructie</button><p id="p1feedback"></p>
+  </div><button id="p1next" class="primary" disabled onclick="show('puzzle2')">Verder</button>
+</div></section>
+
+<section id="puzzle2" class="scene hidden"><div class="panel">
+  <h2>Puzzel 2 — Materiaalprofiel</h2><p><span class="printcue">OPEN PRINTBLAD B</span></p>
+  <p>Koppel de sporen aan hun meest waarschijnlijke functie. Persoonlijke info kan helpen, maar is niet verplicht.</p>
+  <div class="puzzlebox">
+    <label>Dennenhars</label><select id="p2a"><option value="">Kies...</option><option value="paper">Conservering / hechting</option><option value="poison">Drinkbaar gif</option><option value="healing">Genezing</option></select>
+    <label>Lumenkrijt</label><select id="p2b"><option value="">Kies...</option><option value="alignment">Markering / uitlijning</option><option value="perfume">Parfum</option><option value="sedative">Verdoving</option></select>
+    <label>Stabilisatorhars</label><select id="p2c"><option value="">Kies...</option><option value="protection">Bescherming bij instrumentwerk</option><option value="tea">Thee-ingrediënt</option><option value="ink">Schrijfinkt</option></select>
+    <button class="primary" onclick="checkPuzzle2()">Controleer koppelingen</button><p id="p2feedback"></p>
+  </div><button id="p2next" class="primary" disabled onclick="show('social')">Naar de getuigen</button>
+</div></section>
+
+<section id="social" class="scene hidden"><div class="panel">
+  <h2>Onderzoek de klas</h2>
+  <p>Iedereen heeft iets te verbergen. Jullie mogen <strong>drie personen uitgebreid spreken</strong>.</p>
+  <p class="muted">Gesproken: <span id="interviewCount">0</span>/3. Een leugen is geen automatisch moordbewijs.</p>
+  <div class="npc-grid"><div class="npc" data-person="Rowan Vale" onclick="openInterview('Rowan Vale')">
+    <img src="assets/rowan.jpg" alt="Rowan Vale"><div class="npc-name">Rowan Vale</div><div class="npc-role">Duelling Society</div><p>Brutaal, charmant, en niet altijd waarheidsgetrouw.</p></div><div class="npc" data-person="Kestrel Ardan" onclick="openInterview('Kestrel Ardan')">
+    <img src="assets/kestrel.jpg" alt="Kestrel Ardan"><div class="npc-name">Kestrel Ardan</div><div class="npc-role">Student Archivist</div><p>Kent de archieven beter dan wie ook.</p></div><div class="npc" data-person="Maeve Sol" onclick="openInterview('Maeve Sol')">
+    <img src="assets/maeve.jpg" alt="Maeve Sol"><div class="npc-name">Maeve Sol</div><div class="npc-role">Healing Wing</div><p>Warm, praktisch en opvallend discreet.</p></div><div class="npc" data-person="Elias Thorne" onclick="openInterview('Elias Thorne')">
+    <img src="assets/elias.jpg" alt="Elias Thorne"><div class="npc-name">Elias Thorne</div><div class="npc-role">Alchemy Assistant</div><p>Droge humor en toegang tot materiaal.</p></div><div class="npc" data-person="Lyra Voss" onclick="openInterview('Lyra Voss')">
+    <img src="assets/lyra.jpg" alt="Lyra Voss"><div class="npc-name">Lyra Voss</div><div class="npc-role">Senior Prefect</div><p>Beheert wards, toegang en disciplinaire logs.</p></div><div class="npc" data-person="Professor Ilyra Fen" onclick="openInterview('Professor Ilyra Fen')">
+    <img src="assets/fen.jpg" alt="Professor Ilyra Fen"><div class="npc-name">Professor Ilyra Fen</div><div class="npc-role">Transmutation</div><p>Briljant, gereserveerd, en niet volledig open.</p></div></div>
+</div></section>
+
+<section id="interviewScene" class="scene hidden"><div class="panel">
+  <h2 id="interviewName">Getuige</h2>
+  <p>Kies waarover jullie doorvragen. Daarna speelt het antwoord automatisch af in dezelfde visuele dialoogstijl.</p>
+  <div class="grid"><button class="choice" onclick="askInterview('timeline')">Tijd & locatie</button><button class="choice" onclick="askInterview('victim')">Relatie met Veyne</button><button class="choice" onclick="askInterview('secret')">Wat klopt er niet?</button></div>
+  <div id="interviewResponses" class="resultbox"></div>
+  <button id="interviewDone" class="primary hidden" onclick="leaveInterview()">Gesprek afronden</button>
+</div></section>
+
+<section id="phone2" class="scene hidden"><div class="panel">
+  <h2>Een privékeuze</h2><p>Wie zouden jullie individueel opzoeken wanneer niemand meekijkt?</p>
+  <div class="phone-grid">
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/florine_portrait.jpg" alt="Florine">
+      <h3>Florine</h3>
+      <img class="qr" src="assets/qr_2_florine.png" alt="QR Florine">
+      <a href="players/florine.html?phase=2" target="_blank">Open zonder QR</a>
+    </div>
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/margot_portrait.jpg" alt="Margot">
+      <h3>Margot</h3>
+      <img class="qr" src="assets/qr_2_margot.png" alt="QR Margot">
+      <a href="players/margot.html?phase=2" target="_blank">Open zonder QR</a>
+    </div>
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/selena_portrait.jpg" alt="Selena">
+      <h3>Selena</h3>
+      <img class="qr" src="assets/qr_2_selena.png" alt="QR Selena">
+      <a href="players/selena.html?phase=2" target="_blank">Open zonder QR</a>
+    </div></div>
+  <hr><div class="code-grid"><input id="2-f" placeholder="Florine code"><input id="2-m" placeholder="Margot code"><input id="2-s" placeholder="Selena code"></div>
+  <p id="2-error" class="error"></p><button class="primary" onclick="submitPhone(2)">Verder</button>
+</div></section>
+
+<section id="puzzle3" class="scene hidden"><div class="panel">
+  <h2>Puzzel 3 — Het onderhoudssigil</h2><p><span class="printcue">OPEN PRINTBLAD C</span></p>
+  <p>Leg de drie fragmenten volgens de markeringen over elkaar. Er verschijnt één woord.</p>
+  <div class="puzzlebox"><input id="p3answer" placeholder="Welk woord verschijnt?"><button class="primary" onclick="checkPuzzle3()">Controleer</button><p id="p3feedback"></p></div>
+  <button id="p3next" class="primary" disabled onclick="beginTwist()">Verder</button>
+</div></section>
+
+<section id="splitChoice" class="scene hidden"><div class="panel">
+  <h2>De toren reageert</h2><p>Er gebeurt tegelijkertijd iets op verschillende plaatsen. Kies hoe jullie reageren.</p>
+  <div class="grid"><button class="choice" onclick="chooseSplit('together')"><strong>Blijf samen</strong><br><span class="muted">Veiliger, maar trager.</span></button>
+  <button class="choice" onclick="chooseSplit('pair')"><strong>2 + 1</strong><br><span class="muted">Meer bereik, meer risico.</span></button>
+  <button class="choice" onclick="chooseSplit('split')"><strong>Volledig splitsen</strong><br><span class="muted">Iedereen ziet iets anders.</span></button></div>
+</div></section>
+
+<section id="phone3" class="scene hidden"><div class="panel">
+  <h2>Individuele scène</h2><p>Iedere speler krijgt nu een andere gebeurtenis op haar telefoon.</p>
+  <div class="phone-grid">
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/florine_portrait.jpg" alt="Florine">
+      <h3>Florine</h3>
+      <img class="qr" src="assets/qr_3_florine.png" alt="QR Florine">
+      <a href="players/florine.html?phase=3" target="_blank">Open zonder QR</a>
+    </div>
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/margot_portrait.jpg" alt="Margot">
+      <h3>Margot</h3>
+      <img class="qr" src="assets/qr_3_margot.png" alt="QR Margot">
+      <a href="players/margot.html?phase=3" target="_blank">Open zonder QR</a>
+    </div>
+    <div class="phone-card">
+      <img class="mini-portrait" src="assets/selena_portrait.jpg" alt="Selena">
+      <h3>Selena</h3>
+      <img class="qr" src="assets/qr_3_selena.png" alt="QR Selena">
+      <a href="players/selena.html?phase=3" target="_blank">Open zonder QR</a>
+    </div></div>
+  <hr><div class="code-grid"><input id="3-f" placeholder="Florine code"><input id="3-m" placeholder="Margot code"><input id="3-s" placeholder="Selena code"></div>
+  <p id="3-error" class="error"></p><button class="primary" onclick="submitPhone(3)">Herenig de groep</button>
+</div></section>
+
+<section id="puzzle4" class="scene hidden"><div class="panel">
+  <h2>Puzzel 4 — Wie liegt, en waarom?</h2><p><span class="printcue">OPEN PRINTBLAD D</span></p>
+  <p>Meer dan één verklaring bevat een probleem. De vraag is welke leugen wat probeert te beschermen.</p>
+  <div class="puzzlebox">
+    <label>Welke uitspraak bevat een fysiek onmogelijk lichtdetail?</label><select id="p4impossible"><option value="">Kies...</option><option value="fenlight">De uitspraak over de oostcorridor</option><option value="maevelog">De infirmary-uitspraak</option><option value="eliasmat">De materiaaluitspraak</option></select>
+    <label>Welke andere uitspraak botst met een register maar kan via een verborgen route?</label><select id="p4conflict"><option value="">Kies...</option><option value="rowanlog">De trap-/prefectlog</option><option value="fenlight">De raamrichting</option><option value="eliasmat">Het practicumregister</option></select>
+    <label>Welke conclusie is juist?</label><select id="p4conclusion"><option value="">Kies...</option><option value="killer">Iedere leugenaar is dader</option><option value="secrets">Verschillende leugens kunnen verschillende geheimen beschermen</option><option value="ignore">Getuigenverklaringen zijn nutteloos</option></select>
+    <button class="primary" onclick="checkPuzzle4()">Controleer redenering</button><p id="p4feedback"></p>
+  </div><button id="p4next" class="primary" disabled onclick="show('evidenceBoard')">Naar de reconstructie</button>
+</div></section>
+
+<section id="evidenceBoard" class="scene hidden"><div class="panel">
+  <h2>Puzzel 5 — Reconstructie</h2><p><span class="printcue">OPEN PRINTBLAD E</span></p>
+  <p>Leg jullie eigen notities naast de vijf kernbevindingen. Probeer minstens twee theorieën serieus te verdedigen vóór jullie kiezen.</p>
+  <div class="evidence"><div class="ev">✦ Plaats van het letsel</div><div class="ev">🕰️ Werkelijke tijdlijn</div><div class="ev">⚗️ Materiaalgebruik</div><div class="ev">◐ Onderhoudssigil</div><div class="ev">🪟 Tegenstrijdige verklaringen</div></div>
+  <br><button class="primary" onclick="finalSetup()">Wij zijn klaar voor de beschuldiging</button>
+</div></section>
+
+<section id="accuse" class="scene hidden"><div class="panel">
+  <h2>De beschuldiging</h2><p>Kies samen: wie, hoe en waarom.</p>
+  <div class="grid">
+    <div><label>Wie?</label><select id="accCulprit"><option value="">Kies...</option><option>Rowan Vale</option><option>Kestrel Ardan</option><option>Maeve Sol</option><option>Elias Thorne</option><option>Lyra Voss</option><option>Professor Ilyra Fen</option><option>Rector Cael</option></select></div>
+    <div><label>Hoe?</label><select id="accMethod"><option value="">Kies...</option><option value="poison">Vergif in Veynes drank</option><option value="ward">Manipulatie van observatoriumbeveiliging</option><option value="spell">Directe aanvalsspreuk</option><option value="artifact">Vervloekt artefact</option></select></div>
+    <div><label>Waarom?</label><select id="accMotive"><option value="">Kies...</option><option value="jealousy">Romantische jaloezie</option><option value="grades">Wraak om beoordelingen</option><option value="coverup">Voorkomen dat Veyne een verborgen dossier onthulde</option><option value="inherit">Erfenis / geld</option></select></div>
+  </div>
+  <br><button class="danger" onclick="accuse()">Dien de beschuldiging in</button><p id="accFeedback"></p><button id="revealBtn" class="primary hidden" onclick="reveal()">Onthul de waarheid</button>
+</div></section>
+
+<section id="revealScene" class="scene hidden"><div class="panel"><div id="revealText"></div><hr><h2>En daarna...</h2><div id="epilogues" class="grid"></div><p class="center muted">Einde.</p></div></section>
+
+<div id="clueDrawer" class="clue-drawer hidden"><div class="clue-drawer-inner">
+<div class="drawer-head"><h2>Onderzoeksdossier</h2><button class="secondary" onclick="toggleClueDrawer()">Sluit</button></div>
+<p class="muted">Alleen informatie die jullie echt hebben verzameld staat hier.</p><div id="drawerEvidence" class="evidence"></div>
+</div></div>
+
+</div><script src="assets/game.js"></script></body></html>
